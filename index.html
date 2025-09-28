@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SpaceHub | Home</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="loader"><div class="spinner"></div></div>
+    <header>
+        <h1>SpaceHub</h1>
+        <p>Explore the cosmos</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+
+    <main>
+        <div class="card">
+        <img id="apod" alt="NASA Astronomy Picture of the Day">
+        <div class="details">
+            <h2 id="apod-title"></h2>
+            <p id="apod-date"></p>
+        </div>
+        </div>
+
+        <section class="hero">
+        <span class="badge">NASA</span>
+        <h1>Picture of the Day</h1>
+        <p id="apod-desc"></p>
+        </section>
+    </main>
+
+    <footer>
+        © 2025 SpaceHub | Powered by NASA API
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

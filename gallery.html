@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SpaceHub | Gallery</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="loader"><div class="spinner"></div></div>
+    <header>
+        <h1>SpaceHub</h1>
+        <p>Explore the cosmos</p>
+    </header>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="gallery.html">Gallery</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+    </nav>
+
+    <main>
+        <section class="hero">
+        <span class="badge">NASA</span>
+        <h1>Space Image Gallery</h1>
+        <p>Dive into NASA’s Image and Video Library</p>
+        </section>
+
+        <section id="gallery" class="gallery-grid"></section>
+    </main>
+
+    <footer>
+        © 2025 SpaceHub | Powered by NASA Image Library
+    </footer>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modal-img">
+        <div id="modal-caption"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
