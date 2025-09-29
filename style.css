@@ -282,3 +282,47 @@ footer::before {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 30px 0;
+  gap: 12px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.pagination button {
+  background: var(--accent, #ff6b6b);
+  border: none;
+  color: #fff;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: all 0.25s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: #ff8585;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+}
+
+.pagination button:disabled {
+  background: #444;
+  color: #aaa;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.pagination span {
+  color: var(--text, #f5f5f5);
+  font-size: 15px;
+  font-weight: 500;
+  padding: 0 5px;
+}
+
