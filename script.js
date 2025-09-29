@@ -1,15 +1,45 @@
-const apiKey = "DEMO_KEY";
+const apiKey = "DEMO_KEY"; // Replace with your own API key from https://api.nasa.gov
+let page = 1; // gallery page index
+const pageSize = 12;
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours in ms
+
+/* ========== Cache Helpers ========== */
+function setCache(key, data) {
+  const cacheObj = {
+    timestamp: Date.now(),
+    data
+  };
+  localStorage.setItem(key, JSON.stringify(cacheObj));
+}
+
+function getCache(key) {
+  const cached = localStorage.getItem(key);
+  if (!cached) return null;
+
+  try {
+    const parsed = JSON.parse(cached);
+    if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
+      return parsed.data; // still valid
+    } else {
+      localStorage.removeItem(key); // expired
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
 
 /* ========== Loader Control ========== */
-function showContentWhenReady(){
+function showContentWhenReady() {
   document.body.classList.add("loaded");
 }
 
 /* ========== APOD (Home) ========== */
-async function fetchAPOD(){
-  const cached = localStorage.getItem("apodData");
-  if(cached){
-    displayAPOD(JSON.parse(cached));
+async function fetchAPOD() {
+  const cacheKey = "apodData";
+  const cached = getCache(cacheKey);
+  if (cached) {
+    displayAPOD(cached);
     return;
   }
 
@@ -17,17 +47,19 @@ async function fetchAPOD(){
   try {
     const res = await fetch(url);
     const data = await res.json();
-    if(data.media_type === "image"){
-      localStorage.setItem("apodData", JSON.stringify(data));
+    if (data.media_type === "image") {
+      setCache(cacheKey, data);
       displayAPOD(data);
+    } else {
+      showContentWhenReady();
     }
-  } catch(err){
+  } catch (err) {
     console.error("Error fetching APOD:", err);
-    showContentWhenReady(); // show page even on error
+    showContentWhenReady();
   }
 }
 
-function displayAPOD(data){
+function displayAPOD(data) {
   document.getElementById("apod").src = data.url;
   document.getElementById("apod").alt = data.title;
   document.getElementById("apod-title").textContent = data.title;
@@ -36,64 +68,114 @@ function displayAPOD(data){
   showContentWhenReady();
 }
 
-/* ========== NASA Image Library (Gallery) ========== */
-async function fetchGallery(){
-  const cached = localStorage.getItem("galleryData");
-  if(cached){
-    displayGallery(JSON.parse(cached));
-    return;
+/* ========== Pagination Controls ========== */
+function addPaginationControls() {
+  let pagination = document.getElementById("pagination");
+  if (!pagination) {
+    pagination = document.createElement("div");
+    pagination.id = "pagination";
+    pagination.style.textAlign = "center";
+    pagination.style.margin = "20px 0";
+    document.querySelector("main").appendChild(pagination);
   }
 
-  const url = `https://images-api.nasa.gov/search?q=galaxy&media_type=image`;
-  try {
-    const res = await fetch(url);
-    const data = await res.json();
-    const items = data.collection.items.slice(0, 12); // limit 12 images
-    localStorage.setItem("galleryData", JSON.stringify(items));
-    displayGallery(items);
-  } catch(err){
-    console.error("Error fetching gallery:", err);
+  pagination.innerHTML = `
+    <button ${page === 1 ? "disabled" : ""} onclick="prevPage()">⬅ Prev</button>
+    <span style="margin:0 10px">Page ${page}</span>
+    <button onclick="nextPage()">Next ➡</button>
+  `;
+}
+
+function nextPage() {
+  page++;
+  fetchGallery();
+}
+
+function prevPage() {
+  if (page > 1) {
+    page--;
+    fetchGallery();
   }
 }
 
-function displayGallery(items){
+/* ========== Gallery ========== */
+async function fetchGallery() {
+  const cacheKey = `gallery-page-${page}`;
+  const cached = getCache(cacheKey);
+  if (cached) {
+    displayGallery(cached);
+    return;
+  }
+
+  const url = `https://images-api.nasa.gov/search?q=galaxy&media_type=image&page=${page}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    const items = data.collection.items.slice(0, pageSize);
+
+    setCache(cacheKey, items);
+    displayGallery(items);
+  } catch (err) {
+    console.error("Error fetching gallery:", err);
+    document.getElementById("gallery").innerHTML = "<p>Error loading gallery.</p>";
+    showContentWhenReady();
+  }
+}
+
+function displayGallery(items) {
   const gallery = document.getElementById("gallery");
-  gallery.innerHTML = ""; // clear previous
-  items.forEach(item=>{
+  gallery.innerHTML = "";
+
+  if (items.length === 0) {
+    gallery.innerHTML = "<p>No images found.</p>";
+    showContentWhenReady();
+    return;
+  }
+
+  items.forEach((item) => {
+    if (!item.links || !item.data) return;
+
     const imgSrc = item.links[0].href;
     const title = item.data[0].title;
+    const desc = item.data[0].description || "No description available.";
+    const date = item.data[0].date_created || "Unknown date";
+
     const div = document.createElement("div");
     div.className = "gallery-item";
     div.innerHTML = `<img src="${imgSrc}" alt="${title}"><h3>${title}</h3>`;
-    div.onclick = ()=>openModal(imgSrc, title);
+    div.onclick = () => openModal(imgSrc, title, desc, date);
     gallery.appendChild(div);
   });
+
+  addPaginationControls();
   showContentWhenReady();
 }
 
 /* ========== Modal Viewer ========== */
-function openModal(src, caption){
+function openModal(src, title, desc, date) {
   const modal = document.getElementById("modal");
   const modalImg = document.getElementById("modal-img");
   const modalCaption = document.getElementById("modal-caption");
+
   modal.style.display = "block";
   modalImg.src = src;
-  modalCaption.textContent = caption;
+  modalCaption.innerHTML = `<h2>${title}</h2><p>${desc}</p><small>${date}</small>`;
 }
-function closeModal(){
+
+function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
 
 /* ========== DOMContentLoaded ========== */
-document.addEventListener("DOMContentLoaded", ()=>{
-  if(document.getElementById("apod")) fetchAPOD();
-  if(document.getElementById("gallery")) fetchGallery();
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("apod")) fetchAPOD();
+  if (document.getElementById("gallery")) fetchGallery();
 
   const closeBtn = document.querySelector(".close");
-  if(closeBtn) closeBtn.onclick = closeModal;
+  if (closeBtn) closeBtn.onclick = closeModal;
 
-  // About & Contact pages (no fetch)
-  if(!document.getElementById("apod") && !document.getElementById("gallery")){
+  // About & Contact pages
+  if (!document.getElementById("apod") && !document.getElementById("gallery")) {
     showContentWhenReady();
   }
 });
