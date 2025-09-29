@@ -69,22 +69,26 @@ function displayAPOD(data) {
 }
 
 /* ========== Pagination Controls ========== */
+/* ========== Pagination Controls ========== */
 function addPaginationControls() {
-  let pagination = document.getElementById("pagination");
+  let pagination = document.querySelector(".pagination");
   if (!pagination) {
     pagination = document.createElement("div");
-    pagination.id = "pagination";
-    pagination.style.textAlign = "center";
-    pagination.style.margin = "20px 0";
+    pagination.className = "pagination";
     document.querySelector("main").appendChild(pagination);
   }
 
   pagination.innerHTML = `
-    <button ${page === 1 ? "disabled" : ""} onclick="prevPage()">⬅ Prev</button>
-    <span style="margin:0 10px">Page ${page}</span>
-    <button onclick="nextPage()">Next ➡</button>
+    <button id="prevPage" ${page === 1 ? "disabled" : ""}>⬅ Prev</button>
+    <span>Page ${page}</span>
+    <button id="nextPage">Next ➡</button>
   `;
+
+  // Attach event listeners
+  document.getElementById("prevPage").onclick = prevPage;
+  document.getElementById("nextPage").onclick = nextPage;
 }
+
 
 function nextPage() {
   page++;
