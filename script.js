@@ -1,7 +1,7 @@
-const apiKey = "DEMO_KEY"; // Replace with your own API key from https://api.nasa.gov
-let page = 1; // gallery page index
+const apiKey = "DEMO_KEY";
+let page = 1;
 const pageSize = 12;
-const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours in ms
+const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
 
 /* ========== Cache Helpers ========== */
 function setCache(key, data) {
@@ -19,9 +19,9 @@ function getCache(key) {
   try {
     const parsed = JSON.parse(cached);
     if (Date.now() - parsed.timestamp < CACHE_EXPIRY) {
-      return parsed.data; // still valid
+      return parsed.data;
     } else {
-      localStorage.removeItem(key); // expired
+      localStorage.removeItem(key);
       return null;
     }
   } catch {
@@ -29,12 +29,10 @@ function getCache(key) {
   }
 }
 
-/* ========== Loader Control ========== */
 function showContentWhenReady() {
   document.body.classList.add("loaded");
 }
 
-/* ========== APOD (Home) ========== */
 async function fetchAPOD() {
   const cacheKey = "apodData";
   const cached = getCache(cacheKey);
@@ -68,8 +66,6 @@ function displayAPOD(data) {
   showContentWhenReady();
 }
 
-/* ========== Pagination Controls ========== */
-/* ========== Pagination Controls ========== */
 function addPaginationControls() {
   let pagination = document.querySelector(".pagination");
   if (!pagination) {
@@ -84,7 +80,6 @@ function addPaginationControls() {
     <button id="nextPage">Next ➡</button>
   `;
 
-  // Attach event listeners
   document.getElementById("prevPage").onclick = prevPage;
   document.getElementById("nextPage").onclick = nextPage;
 }
@@ -102,7 +97,6 @@ function prevPage() {
   }
 }
 
-/* ========== Gallery ========== */
 async function fetchGallery() {
   const cacheKey = `gallery-page-${page}`;
   const cached = getCache(cacheKey);
@@ -155,7 +149,6 @@ function displayGallery(items) {
   showContentWhenReady();
 }
 
-/* ========== Modal Viewer ========== */
 function openModal(src, title, desc, date) {
   const modal = document.getElementById("modal");
   const modalImg = document.getElementById("modal-img");
@@ -170,7 +163,6 @@ function closeModal() {
   document.getElementById("modal").style.display = "none";
 }
 
-/* ========== DOMContentLoaded ========== */
 document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("apod")) fetchAPOD();
   if (document.getElementById("gallery")) fetchGallery();
@@ -178,7 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeBtn = document.querySelector(".close");
   if (closeBtn) closeBtn.onclick = closeModal;
 
-  // About & Contact pages
   if (!document.getElementById("apod") && !document.getElementById("gallery")) {
     showContentWhenReady();
   }
