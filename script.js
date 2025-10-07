@@ -3,7 +3,6 @@ let page = 1;
 const pageSize = 12;
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000;
 
-/* ========== Cache Helpers ========== */
 function setCache(key, data) {
   const cacheObj = {
     timestamp: Date.now(),
