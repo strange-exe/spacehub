@@ -8,7 +8,6 @@
   --radius: 16px;
 }
 
-/* Reset */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -31,7 +30,6 @@ body.loaded {
 body:not(.loaded) main { display: none; }
 body.loaded .loader { display: none; }
 
-/* Loader */
 .loader {
   position: fixed;
   top: 0;
@@ -59,7 +57,6 @@ body.loaded .loader { display: none; }
   100% { transform: rotate(360deg); }
 }
 
-/* Header */
 header {
   text-align: center;
   padding: 40px 20px 20px;
@@ -78,7 +75,6 @@ header p {
   color: var(--muted);
 }
 
-/* Navigation */
 nav {
   background: var(--panel);
   padding: 15px 30px;
@@ -125,8 +121,6 @@ main{width:85%;margin:40px auto;display:grid;grid-template-columns:1fr 1fr;gap:4
 
 footer{text-align:center;color:var(--muted);padding:30px;font-size:14px;border-top:1px solid #222;margin-top:40px}
 
-
-/* Gallery Grid */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -162,7 +156,6 @@ footer{text-align:center;color:var(--muted);padding:30px;font-size:14px;border-t
   text-align: center;
 }
 
-/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
@@ -192,7 +185,6 @@ footer{text-align:center;color:var(--muted);padding:30px;font-size:14px;border-t
   transform: scale(1.05);
 }
 
-/* Modal */
 .modal {
   display: none;
   position: fixed;
@@ -245,7 +237,6 @@ footer{text-align:center;color:var(--muted);padding:30px;font-size:14px;border-t
   color: var(--accent);
 }
 
-/* Footer */
 footer {
   text-align: center;
   color: var(--muted);
@@ -267,7 +258,6 @@ footer::before {
   background: linear-gradient(90deg, transparent, var(--accent), transparent);
 }
 
-/* Animations */
 @keyframes fadeDown {
   from { opacity: 0; transform: translateY(-20px); }
   to { opacity: 1; transform: none; }
@@ -283,7 +273,6 @@ footer::before {
   to { opacity: 1; }
 }
 
-/* Pagination */
 .pagination {
   display: flex;
   justify-content: center;
