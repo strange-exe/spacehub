@@ -7,6 +7,60 @@
   <link rel="icon" href="space.png" type="image">
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+        margin: 0;
+        font-family: 'Poppins', sans-serif;
+    }
+    header {
+        background: url('space-background.jpg') no-repeat center center/cover;
+        color: #fff;
+        padding: 50px 20px;
+        text-align: center;
+    }
+    header h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        animation: fadeIn 1s ease-in-out;
+    }
+    header p {
+        font-size: 1.2rem;
+        margin-top: 10px;
+    }
+    main {
+        max-width: 600px;
+        margin: 40px auto;
+        text-align: center;
+    }
+    a {
+        padding: 12px 20px;
+        background: var(--accent);
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        border-radius: var(--radius);
+        margin-top: 20px;
+        display: inline-block;
+        transition: background 0.3s ease;
+    }
+    a:hover {
+        background: #444;
+    }
+    footer {
+        background: #333;
+        color: #fff;
+        padding: 10px;
+        text-align: center;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+  </style>
 </head>
 <body>
     <nav>
@@ -15,14 +69,15 @@
         <a href="about.html">About</a>
         <a href="contact.html" class="active">Contact</a>
     </nav>
+
     <header>
         <h1>Thank You!</h1>
         <p>Your message has been successfully sent. We'll get back to you soon.</p>
     </header>
-    <main style="max-width:600px;margin:40px auto;text-align:center">
-        <section style="padding:20px;">
+    <main>
+        <section>
             <p style="font-size:1.2rem;color:#555;">We appreciate you reaching out to us. In the meantime, feel free to explore more about SpaceHub.</p>
-            <a href="index.html" style="padding:12px 20px;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;border-radius:var(--radius);margin-top:20px;display:inline-block;">Go Back to Home</a>
+            <a href="index.html">Go Back to Home</a>
         </section>
     </main>
     <footer>
