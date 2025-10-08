@@ -27,12 +27,15 @@
         <h1>Get in Touch</h1>
         <p>Have questions or suggestions? Reach out below!</p>
         </section>
-        <form class="card" style="padding:20px;display:flex;flex-direction:column;gap:15px">
-        <input type="text" placeholder="Your Name" required style="padding:12px;border-radius:var(--radius);border:none">
-        <input type="email" placeholder="Your Email" required style="padding:12px;border-radius:var(--radius);border:none">
-        <textarea placeholder="Your Message" rows="5" required style="padding:12px;border-radius:var(--radius);border:none"></textarea>
+        <form action="https://formsubmit.co/work.abhinesh@gmail.com" method="POST" class="card" style="padding:20px;display:flex;flex-direction:column;gap:15px">
+        <input type="text" name="name" placeholder="Your Name" required style="padding:12px;border-radius:var(--radius);border:none">
+        <input type="email" name="email" placeholder="Your Email" required style="padding:12px;border-radius:var(--radius);border:none">
+        <textarea name="message" placeholder="Your Message" rows="5" required style="padding:12px;border-radius:var(--radius);border:none"></textarea>
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://abhinesh.me/spacehub/thankyou.html">
         <button type="submit" style="padding:12px;background:var(--accent);border:none;color:#fff;font-weight:600;border-radius:var(--radius);cursor:pointer">Send</button>
         </form>
+        
     </main>
     <footer>
         © 2025 SpaceHub | Powered by NASA API
