@@ -1,4 +1,4 @@
-/* :root {
+:root {
   --bg: #0d0d0f;
   --panel: #1c1c20;
   --accent: #ff6b6b;
@@ -121,7 +121,40 @@ main {
   font-size: 1rem;
   color: #666;
 }
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+}
 
+.gallery-item {
+  background: var(--panel);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 6px 20px var(--shadow);
+  cursor: pointer;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(255, 107, 107, 0.3);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-item h3 {
+  padding: 10px;
+  color: var(--accent);
+  font-size: 16px;
+  text-align: center;
+}
 footer {
   text-align: center;
   padding: 10px;
@@ -264,8 +297,7 @@ footer::before {
         font-size: 0.8rem;
     }
 }
- */
-
+/*
 :root {
   --bg: #0d0d0f;
   --panel: #1c1c20;
@@ -583,3 +615,4 @@ footer::before {
   padding: 0 5px;
 }
 
+*/

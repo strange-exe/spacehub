@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 </head>
-    <body>
+<body>
     <div class="loader"><div class="spinner"></div></div>
     <header>
         <h1>SpaceHub</h1>
@@ -27,7 +27,7 @@
         <h1>Get in Touch</h1>
         <p>Have questions or suggestions? Reach out below!</p>
         </section>
-        <form action="https://formsubmit.co/work.abhinesh@gmail.com" method="POST" class="card" style="padding:20px;display:flex;flex-direction:column;gap:15px">
+        <form id="contactForm" action="https://formsubmit.co/work.abhinesh@gmail.com" method="POST" class="card" style="padding:20px;display:flex;flex-direction:column;gap:15px">
         <input type="text" name="name" placeholder="Your Name" required style="padding:12px;border-radius:var(--radius);border:none">
         <input type="email" name="email" placeholder="Your Email" required style="padding:12px;border-radius:var(--radius);border:none">
         <textarea name="message" placeholder="Your Message" rows="5" required style="padding:12px;border-radius:var(--radius);border:none"></textarea>
@@ -40,6 +40,18 @@
     <footer>
         © 2025 SpaceHub | Powered by NASA API
     </footer>
-    <script src="script.js"></script>
+    <script>
+        // Ensure the body gets the 'loaded' class after the page loads
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+        });
+        // Error handler to ensure the form has method="POST"
+        document.getElementById('contactForm').addEventListener('submit', function(event) {
+            if (this.method.toUpperCase() !== 'POST') {
+                event.preventDefault(); // Prevent form submission
+                alert('Error: The form must use the POST method.');
+            }
+        });
+    </script>
 </body>
 </html>
