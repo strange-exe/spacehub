@@ -15,24 +15,28 @@
     header {
         background: url('space-bg.jpg') no-repeat center center/cover;
         color: #fff;
-        padding: 50px 20px;
+        padding: 100px 20px;
         text-align: center;
+        min-height: 100vh;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
     }
     header h1 {
-        font-size: 2.5rem;
+        font-size: 3rem;
         font-weight: 800;
         animation: fadeIn 1s ease-in-out;
     }
     header p {
-        font-size: 1.2rem;
+        font-size: 1.5rem;
         margin-top: 10px;
     }
-    main {
-        max-width: 600px;
-        margin: 40px auto;
-        text-align: center;
+    header .extra-content {
+        margin-top: 40px;
+        font-size: 1.2rem;
+        color: #eae5e5;
     }
-    a {
+    header .extra-content a {
         padding: 12px 20px;
         background: var(--accent);
         color: #fff;
@@ -43,7 +47,7 @@
         display: inline-block;
         transition: background 0.3s ease;
     }
-    a:hover {
+    header .extra-content a:hover {
         background: #444;
     }
     footer {
@@ -79,13 +83,11 @@
     <header>
         <h1>Thank You!</h1>
         <p>Your message has been successfully sent. We'll get back to you soon.</p>
-    </header>
-    <main>
-        <section>
-            <p style="font-size:1.2rem;color:#eae5e5;">We appreciate you reaching out to us. In the meantime, feel free to explore more about SpaceHub.</p>
+        <div class="extra-content">
+            <p>We appreciate you reaching out to us. In the meantime, feel free to explore more about SpaceHub.</p>
             <a href="index.html">Go Back to Home</a>
-        </section>
-    </main>
+        </div>
+    </header>
     <footer>
         © 2025 SpaceHub | Powered by NASA API
     </footer>
