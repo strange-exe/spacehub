@@ -92,7 +92,10 @@ nav a.active {
   background: #555;
   border-radius: 5px;
 }
-
+nav a:hover {
+  background: #f38888;
+  border-radius: 5px;
+}
 main {
   padding: 20px;
   text-align: center;
