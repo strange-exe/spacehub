@@ -1,4 +1,4 @@
-const apiKey = "7oiTIynRYge5YAyUIuqrA0vp8Bej2GoNeTNWZkvH";
+const apiKey = "DEMO_KEY";
 let page = 1;
 const pageSize = 12;
 const CACHE_EXPIRY = 24 * 60 * 60 * 1000; // 24h
