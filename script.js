@@ -1,7 +1,7 @@
 const apiKey = "DEMO_KEY";
 let page = 1;
 const pageSize = 12;
-const CACHE_EXPIRY = 24 * 60 * 60;
+const CACHE_EXPIRY = 24 * 60 * 60*1000;
 
 function setCache(key, data) {
   const cacheObj = {
