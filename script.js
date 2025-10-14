@@ -25,7 +25,6 @@ function getCache(key) {
   }
 }
 
-// remove cache older than 24 h on startup
 function clearOldCache() {
   const now = Date.now();
   for (let i = 0; i < localStorage.length; i++) {
