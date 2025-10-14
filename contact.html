@@ -20,7 +20,6 @@
         <a href="about.html">About</a>
         <a href="contact.html" class="active">Contact</a>
     </nav>
-    
     <main style="max-width:600px;margin:40px auto;text-align:center">
         <section class="hero">
         <span class="badge">Contact</span>
@@ -35,20 +34,17 @@
         <input type="hidden" name="_next" value="https://abhinesh.me/spacehub/thankyou.html">
         <button type="submit" style="padding:12px;background:var(--accent);border:none;color:#fff;font-weight:600;border-radius:var(--radius);cursor:pointer">Send</button>
         </form>
-        
     </main>
     <footer>
         © 2025 SpaceHub | Powered by NASA API
     </footer>
     <script>
-        // Ensure the body gets the 'loaded' class after the page loads
         window.addEventListener('load', () => {
             document.body.classList.add('loaded');
         });
-        // Error handler to ensure the form has method="POST"
         document.getElementById('contactForm').addEventListener('submit', function(event) {
             if (this.method.toUpperCase() !== 'POST') {
-                event.preventDefault(); // Prevent form submission
+                event.preventDefault();
                 alert('Error: The form must use the POST method.');
             }
         });
