@@ -16,7 +16,7 @@ function getCache(key) {
   if (!cached) return null;
   try {
     const parsed = JSON.parse(cached);
-    if (Date.now() - parsed.timestamp < CACHE_EXPIRY) return parsed.data;
+    if ((Date.now() - parsed.timestamp) < CACHE_EXPIRY) return parsed.data;
     localStorage.removeItem(key);
     return null;
   } catch {
@@ -31,7 +31,7 @@ function clearOldCache() {
     const key = localStorage.key(i);
     try {
       const parsed = JSON.parse(localStorage.getItem(key));
-      if (!parsed.timestamp || now - parsed.timestamp > CACHE_EXPIRY) {
+      if (!parsed.timestamp || (now - parsed.timestamp) > CACHE_EXPIRY) {
         localStorage.removeItem(key);
       }
     } catch {
