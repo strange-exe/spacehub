@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* ── Plate Archive design tokens ─────────────────────────────────────────────
+   One dominant tone (ink), one accent (signal), one neutral system (bone/dust).  */
+@theme {
+  --color-ink: #07080b;
+  --color-ink-2: #0f1117;
+  --color-ink-3: #171a22;
+  --color-bone: #ece6d9;
+  --color-dust: #9a958a; /* 6.9:1 on ink, safe for body copy */
+  --color-signal: #ff7a3d;
+
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --animate-spotlight: spotlight 2s ease 0.4s 1 forwards;
+  --animate-scan: scan 1.8s ease-in-out infinite alternate;
+
+  @keyframes spotlight {
+    0% { opacity: 0; transform: translate(-72%, -62%) scale(0.5); }
+    100% { opacity: 1; transform: translate(-50%, -40%) scale(1); }
+  }
+  @keyframes scan {
+    from { top: 0%; }
+    to { top: 100%; }
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--color-ink);
+    color: var(--color-bone);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Film grain: fixed, non-interactive, very low opacity. */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    pointer-events: none;
+    opacity: 0.07;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  ::selection {
+    background: var(--color-signal);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+}
+
+@layer components {
+  /* Monospace catalog label: the voice of the archive. */
+  .catalog {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-dust);
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 rounded-full border border-bone/15 px-4 py-2 text-sm text-bone transition-colors hover:border-bone/40 hover:bg-bone/5 disabled:pointer-events-none disabled:opacity-40;
+  }
+  .btn-solid {
+    @apply inline-flex items-center gap-2 rounded-full bg-signal px-5 py-2.5 text-sm font-medium text-ink transition-[filter,transform] hover:brightness-110 active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .link {
+    @apply text-bone underline decoration-signal/50 underline-offset-4 transition-colors hover:decoration-signal;
+  }
+  .field {
+    @apply w-full rounded-xl border border-bone/15 bg-ink-2 px-4 py-3 text-bone placeholder:text-dust/70 focus:border-signal/70 focus:outline-none;
+  }
+}
