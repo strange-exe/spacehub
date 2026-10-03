@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useEffectEvent, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+  type PointerEvent,
+} from "react";
 import { motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 import { FavoriteButton } from "@/features/favorites/components/FavoriteButton";
@@ -12,7 +21,7 @@ export interface LightboxItem {
   src: string;
   /** Larger rendition, either known up front or resolved lazily (cached by react-query). */
   fullSrc?: string;
-  resolveFullSrc?: (signal: AbortSignal) => Promise<string | undefined>;
+  resolveFullSrc?: (signal: AbortSignal) => Promise<string | null>;
   /** Target of the "Full resolution" link when it differs from what is displayed. */
   originalHref?: string;
   description: string;
@@ -82,9 +91,17 @@ export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
     if (e.key === "ArrowLeft") step(-1);
   };
 
-  // Clicks that land on the <dialog> itself (not its content) are backdrop clicks.
+  // A backdrop click must *start and end* on empty space ([data-backdrop] = the dialog's own
+  // padding and the area around the image). Checking only the click target would close the
+  // viewer when a text selection in the description is released over the padding.
+  const pressedOnBackdrop = useRef(false);
+  const isBackdrop = (el: EventTarget): boolean => el instanceof HTMLElement && el.hasAttribute("data-backdrop");
+  const onPointerDown = (e: PointerEvent<HTMLDialogElement>): void => {
+    pressedOnBackdrop.current = isBackdrop(e.target);
+  };
   const onClick = (e: MouseEvent<HTMLDialogElement>): void => {
-    if (e.target === e.currentTarget) ref.current?.close();
+    if (pressedOnBackdrop.current && isBackdrop(e.target)) ref.current?.close();
+    pressedOnBackdrop.current = false;
   };
 
   return (
@@ -92,7 +109,9 @@ export function Lightbox({ items, index, onIndexChange }: LightboxProps) {
       ref={ref}
       aria-label={item?.title ?? "Image viewer"}
       onKeyDown={onKeyDown}
+      onPointerDown={onPointerDown}
       onClick={onClick}
+      data-backdrop
       className="fixed inset-0 m-0 h-dvh max-h-none w-screen max-w-none overflow-y-auto bg-ink/90 p-3 text-bone backdrop:bg-black/70 backdrop:backdrop-blur-sm sm:p-6"
     >
       {item && index !== null && (
@@ -123,7 +142,7 @@ function LightboxContent({ item, position, canStep, onStep, onClose }: ContentPr
   // Progressive: show the preview instantly, swap to the large rendition once resolved.
   const { data: resolved } = useQuery({
     queryKey: ["asset", item.id],
-    queryFn: ({ signal }) => item.resolveFullSrc?.(signal) ?? Promise.resolve(undefined),
+    queryFn: ({ signal }) => item.resolveFullSrc?.(signal) ?? Promise.resolve(null),
     enabled: !!item.resolveFullSrc && !item.fullSrc,
     staleTime: Infinity,
   });
@@ -132,8 +151,8 @@ function LightboxContent({ item, position, canStep, onStep, onClose }: ContentPr
   const loaded = loadedSrc === displaySrc;
 
   return (
-    <div className="mx-auto grid min-h-full max-w-[96rem] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="relative flex min-h-[50dvh] items-center justify-center">
+    <div className="mx-auto grid min-h-full max-w-[96rem] gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]" data-backdrop>
+      <div className="relative flex min-h-[50dvh] cursor-zoom-out items-center justify-center" data-backdrop>
         <motion.img
           key={item.id}
           src={displaySrc}

@@ -29,10 +29,10 @@ export function mapSearchResponse(raw: RawSearchResponse, page: number): Library
 }
 
 /** Prefer a web-friendly large JPEG over the (sometimes 50 MB TIFF) original. */
-export function pickLargest(raw: RawAssetResponse): string | undefined {
+export function pickLargest(raw: RawAssetResponse): string | null {
   const hrefs = raw.collection.items.map((i) => i.href ?? "").filter((h) => /\.(jpe?g|png)$/i.test(h));
   const pick = ["~large.", "~medium.", "~orig."].map((tag) => hrefs.find((h) => h.includes(tag))).find(Boolean);
-  return pick ? normaliseUrl(pick) : undefined;
+  return pick ? normaliseUrl(pick) : null;
 }
 
 export const imagesApi = {
@@ -40,7 +40,7 @@ export const imagesApi = {
     const params = new URLSearchParams({ q: query, media_type: "image", page: String(page), page_size: String(PAGE_SIZE) });
     return mapSearchResponse(await getJSON<RawSearchResponse>(`${BASE}/search?${params}`, signal), page);
   },
-  async largestImage(nasaId: string, signal?: AbortSignal): Promise<string | undefined> {
+  async largestImage(nasaId: string, signal?: AbortSignal): Promise<string | null> {
     return pickLargest(await getJSON<RawAssetResponse>(`${BASE}/asset/${encodeURIComponent(nasaId)}`, signal));
   },
 };

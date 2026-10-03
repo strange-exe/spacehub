@@ -1,7 +1,9 @@
 import { Suspense, useDeferredValue } from "react";
 import { motion } from "motion/react";
 import { useSearchParams } from "react-router";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { VanishInput } from "@/components/ui/vanish-input";
+import { describeError } from "@/lib/http";
 import { LibraryResults } from "@/features/gallery/components/LibraryResults";
 import { cn } from "@/lib/cn";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
@@ -51,11 +53,28 @@ export default function Gallery() {
       </ul>
 
       <div className={cn("mt-14 transition-opacity duration-300", stale && "pointer-events-none opacity-40")} aria-busy={stale}>
-        <Suspense fallback={<GridSkeleton />}>
-          <LibraryResults query={deferredQuery} />
-        </Suspense>
+        {/* Own boundary: a failed search must not take the search box down with it,
+            and a new query (resetKey) clears the error. */}
+        <ErrorBoundary resetKey={deferredQuery} fallback={({ error, retry }) => <SearchError error={error} retry={retry} />}>
+          <Suspense fallback={<GridSkeleton />}>
+            <LibraryResults query={deferredQuery} />
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </section>
+  );
+}
+
+function SearchError({ error, retry }: { error: unknown; retry: () => void }) {
+  const { title, hint } = describeError(error);
+  return (
+    <div role="alert" className="py-20 text-center">
+      <p className="font-display text-4xl">{title}</p>
+      <p className="mx-auto mt-3 max-w-md text-dust">{hint}</p>
+      <button type="button" className="btn-solid mt-6" onClick={retry}>
+        Try again
+      </button>
+    </div>
   );
 }
 

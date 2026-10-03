@@ -16,8 +16,14 @@ export function Layout() {
 
   return (
     <div className="flex min-h-dvh flex-col">
+      {/* With hash routing, href="#main" would *navigate* to a route called "main" (→ 404),
+          so move focus programmatically instead. */}
       <a
         href="#main"
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById("main")?.focus();
+        }}
         className="sr-only z-50 rounded bg-bone px-3 py-2 text-ink focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
       >
         Skip to content

@@ -33,10 +33,18 @@ export default function Favorites() {
     [items],
   );
 
+  // Snapshot the list when the viewer opens: un-saving the current image inside the viewer
+  // shrinks `items`, which would otherwise shift the index onto a different favourite.
+  const [viewerList, setViewerList] = useState<LightboxItem[]>([]);
+
   const select = (i: number): void => {
     const fav = items[i];
-    if (fav?.route) void navigate(fav.route);
-    else setOpen(i);
+    if (fav?.route) {
+      void navigate(fav.route);
+      return;
+    }
+    setViewerList(viewerItems);
+    setOpen(i);
   };
 
   return (
@@ -61,7 +69,7 @@ export default function Favorites() {
       ) : (
         <FocusCards cards={cards} onSelect={select} />
       )}
-      <Lightbox items={viewerItems} index={open} onIndexChange={setOpen} />
+      <Lightbox items={viewerList} index={open} onIndexChange={setOpen} />
     </section>
   );
 }

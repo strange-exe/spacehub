@@ -4,8 +4,6 @@
  * Every access is wrapped: storage can throw in private mode or when quota is exceeded.
  */
 const PREFIX = "spacehub:";
-type Listener = () => void;
-const listeners = new Map<string, Set<Listener>>();
 
 export const storageKey = (key: string): string => PREFIX + key;
 
@@ -18,26 +16,20 @@ export function readJSON<T>(key: string, fallback: T): T {
   }
 }
 
+/** Best-effort write; callers keep their own in-memory state as the source of truth. */
 export function writeJSON<T>(key: string, value: T): void {
   try {
     localStorage.setItem(storageKey(key), JSON.stringify(value));
   } catch {
-    // Quota or privacy mode: keep working in-memory for this session.
+    // Quota or privacy mode: the session keeps working in memory.
   }
-  listeners.get(key)?.forEach((fn) => fn());
 }
 
-/** Subscribe to changes from this tab (writeJSON) and other tabs (storage event). */
-export function subscribe(key: string, fn: Listener): () => void {
-  const set = listeners.get(key) ?? new Set<Listener>();
-  set.add(fn);
-  listeners.set(key, set);
+/** Notifies when *another tab* changes the key (the browser never fires this for our own writes). */
+export function subscribe(key: string, fn: () => void): () => void {
   const onStorage = (e: StorageEvent): void => {
-    if (e.key === storageKey(key)) fn();
+    if (e.key === storageKey(key) || e.key === null) fn(); // null = storage cleared
   };
   window.addEventListener("storage", onStorage);
-  return () => {
-    set.delete(fn);
-    window.removeEventListener("storage", onStorage);
-  };
+  return () => window.removeEventListener("storage", onStorage);
 }

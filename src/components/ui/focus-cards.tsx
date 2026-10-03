@@ -47,7 +47,6 @@ const Card = memo(function Card({ card, index, focused, setFocused, onSelect }: 
         {card.caption && <span className="catalog">{card.caption}</span>}
         <span className="mt-1 line-clamp-2 font-display text-2xl leading-tight text-bone">{card.title}</span>
       </span>
-      <span className="sr-only">{card.title}</span>
     </button>
   );
 });
