@@ -51,7 +51,10 @@ export function Layout() {
             <a className="link" href="https://images.nasa.gov">NASA Image and Video Library</a>. Not affiliated with
             NASA.
           </p>
-          <p className="catalog">© {new Date().getFullYear()} SpaceHub</p>
+          <p className="catalog flex gap-4">
+            <a className="hover:text-bone" href="https://github.com/strange-exe/spacehub">Source ↗</a>
+            <span>© {new Date().getFullYear()} SpaceHub</span>
+          </p>
         </div>
       </footer>
     </div>

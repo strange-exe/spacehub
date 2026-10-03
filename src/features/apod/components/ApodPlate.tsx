@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "@/lib/cn";
 import { Lightbox, type LightboxItem } from "@/components/Lightbox";
 import { RegMarks } from "@/components/RegMarks";
+import { ShareButton } from "@/components/ShareButton";
 import { Spotlight } from "@/components/ui/spotlight";
 import { FavoriteButton } from "@/features/favorites/components/FavoriteButton";
 import { addDays, formatLong, type IsoDate } from "@/lib/dates";
@@ -127,6 +128,8 @@ export function ApodPlate({ date }: { date: IsoDate }) {
             <p className="mt-6 max-w-prose text-[1.02rem] leading-relaxed text-bone/80">{explanation}</p>
             <div className="mt-8 flex flex-wrap gap-2">
               <FavoriteButton item={favorite} />
+              {/* Always share the dated permalink, even from the "Today" page. */}
+              <ShareButton title={apod.title} url={`${window.location.href.split("#")[0]}#/apod/${apod.date}`} />
               {apod.hdurl && (
                 <a className="btn-ghost" href={apod.hdurl} target="_blank" rel="noreferrer">
                   HD original ↗
