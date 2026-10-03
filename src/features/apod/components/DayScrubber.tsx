@@ -62,14 +62,18 @@ export function DayScrubber({ date, latest, onChange }: DayScrubberProps) {
         const current = d === date;
         const monthStart = d.endsWith("-01");
         return (
-          <button
+          // Plain spans (not buttons): a clicked tick must not take focus while aria-hidden.
+          // Pointer users click ticks; keyboard/AT users operate the slider itself.
+          <span
             key={d}
-            type="button"
-            tabIndex={-1}
             aria-hidden
             title={formatLong(d)}
-            onClick={() => onChange(d)}
-            className="relative flex h-full flex-1 items-end justify-center"
+            onPointerDown={(e) => {
+              e.preventDefault(); // keep focus on the slider, not the page body
+              e.currentTarget.closest<HTMLElement>("[role=slider]")?.focus();
+              onChange(d);
+            }}
+            className="relative flex h-full flex-1 cursor-pointer items-end justify-center"
           >
             <span
               className={cn(
@@ -82,7 +86,7 @@ export function DayScrubber({ date, latest, onChange }: DayScrubberProps) {
                 {new Date(`${d}T00:00:00Z`).toLocaleString("en", { month: "short", timeZone: "UTC" })}
               </span>
             )}
-          </button>
+          </span>
         );
       })}
     </div>

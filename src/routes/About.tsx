@@ -1,7 +1,13 @@
 import type { ReactNode } from "react";
 import { motion } from "motion/react";
-import { plateNumber, latestApodDate } from "@/features/apod/lib/apodDates";
+import { useLatestApodDate } from "@/features/apod/hooks/useLatestApodDate";
+import { plateNumber } from "@/features/apod/lib/apodDates";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
+
+// A component (not a value baked into SECTIONS at module load) so it stays current past midnight ET.
+function TodayPlateNumber() {
+  return <span className="font-mono text-signal">{plateNumber(useLatestApodDate()).toLocaleString("en-US")}</span>;
+}
 
 const SECTIONS: Array<{ id: string; label: string; body: ReactNode }> = [
   {
@@ -22,7 +28,7 @@ const SECTIONS: Array<{ id: string; label: string; body: ReactNode }> = [
     body: (
       <p>
         Plate № 1 is 16 June 1995, the first APOD. Each day since adds one, so today is plate №{" "}
-        <span className="font-mono text-signal">{plateNumber(latestApodDate()).toLocaleString("en-US")}</span>. A handful of
+        <TodayPlateNumber />. A handful of
         early days were never published, so a few plate numbers point at empty shelves.
       </p>
     ),

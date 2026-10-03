@@ -1,8 +1,9 @@
 import { ApodDayView } from "@/features/apod/components/ApodDayView";
-import { latestApodDate } from "@/features/apod/lib/apodDates";
+import { useLatestApodDate } from "@/features/apod/hooks/useLatestApodDate";
 import { useDocumentTitle } from "@/lib/useDocumentTitle";
 
 export default function Home() {
   useDocumentTitle("Today");
-  return <ApodDayView date={latestApodDate()} />;
+  // Reactive, so a tab left open across midnight US Eastern moves on to the new plate.
+  return <ApodDayView date={useLatestApodDate()} />;
 }

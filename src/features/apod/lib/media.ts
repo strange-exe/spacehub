@@ -12,7 +12,10 @@ export function toEmbedUrl(raw: string | undefined): string | null {
       const id = url.hostname === "youtu.be" ? url.pathname.slice(1) : url.pathname.split("/embed/")[1] ?? url.searchParams.get("v");
       return id ? `https://www.youtube-nocookie.com/embed/${id.split(/[?/]/)[0]}` : null;
     }
-    if (/(^|\.)vimeo\.com$/.test(url.hostname)) return url.href;
+    if (url.hostname === "player.vimeo.com") return url.href;
+    // vimeo.com/<id> is a page Vimeo refuses to frame; its embeddable form is player.vimeo.com.
+    const vimeoId = /(^|\.)vimeo\.com$/.test(url.hostname) ? url.pathname.match(/^\/(\d+)/)?.[1] : undefined;
+    if (vimeoId) return `https://player.vimeo.com/video/${vimeoId}`;
     return null;
   } catch {
     return null;

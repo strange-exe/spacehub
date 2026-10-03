@@ -8,10 +8,11 @@ import { RegMarks } from "@/components/RegMarks";
 import { ShareButton } from "@/components/ShareButton";
 import { Spotlight } from "@/components/ui/spotlight";
 import { FavoriteButton } from "@/features/favorites/components/FavoriteButton";
-import { addDays, formatLong, type IsoDate } from "@/lib/dates";
+import { addDays, formatLong, isIsoDate, type IsoDate } from "@/lib/dates";
 import { toPlainText } from "@/lib/text";
 import { apodQuery, useApod } from "../hooks/useApod";
-import { APOD_EPOCH, latestApodDate, plateNumber, randomApodDate } from "../lib/apodDates";
+import { useLatestApodDate } from "../hooks/useLatestApodDate";
+import { APOD_EPOCH, plateNumber, randomApodDate } from "../lib/apodDates";
 import { apodPageUrl } from "../lib/media";
 import { ApodMedia } from "./ApodMedia";
 import { DayScrubber } from "./DayScrubber";
@@ -23,22 +24,30 @@ export function ApodPlate({ date }: { date: IsoDate }) {
   const { data: apod } = useApod(date);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const latest = latestApodDate();
+  const latest = useLatestApodDate();
   const [viewerOpen, setViewerOpen] = useState(false);
   // React Router navigations are transitions: while the next day suspends, React keeps this
   // plate on screen. isPending lets us *show* that something is happening.
   const [isPending, startTransition] = useTransition();
+  // `date` lags behind during a pending transition, so steps (→ → →, PageUp) are counted from
+  // the day the user is heading to, which updates immediately.
+  const [target, setTarget] = useState<IsoDate | null>(null);
+  const current = isPending && target ? target : date;
 
   const goTo = (d: IsoDate): void => {
-    startTransition(() => void navigate(d === latest ? "/" : `/apod/${d}`));
+    const clamped = d < APOD_EPOCH ? APOD_EPOCH : d > latest ? latest : d;
+    setTarget(clamped);
+    startTransition(() => void navigate(clamped === latest ? "/" : `/apod/${clamped}`));
   };
-  const prev = date > APOD_EPOCH ? addDays(date, -1) : null;
-  const next = date < latest ? addDays(date, 1) : null;
+  const prev = current > APOD_EPOCH ? addDays(current, -1) : null;
+  const next = current < latest ? addDays(current, 1) : null;
 
   // Warm the cache for the neighbouring days so prev/next feel instant.
   useEffect(() => {
-    for (const d of [prev, next]) if (d) void queryClient.prefetchQuery(apodQuery(d));
-  }, [prev, next, queryClient]);
+    for (const d of [addDays(date, -1), addDays(date, 1)]) {
+      if (d >= APOD_EPOCH && d <= latest) void queryClient.prefetchQuery(apodQuery(d));
+    }
+  }, [date, latest, queryClient]);
 
   // ← / → step through the archive from anywhere on the page.
   const onKey = useEffectEvent((e: KeyboardEvent) => {
@@ -150,20 +159,26 @@ export function ApodPlate({ date }: { date: IsoDate }) {
             </button>
             <label className="flex items-center gap-3">
               <span className="catalog">Jump to</span>
+              {/* Uncontrolled + range-guarded: typing a year fires change per digit ("0002-…",
+                  "0020-…"), which must neither navigate nor reset the field mid-typing. */}
               <input
+                key={current}
                 type="date"
                 className="field w-auto py-2 font-mono text-sm [color-scheme:dark]"
                 min={APOD_EPOCH}
                 max={latest}
-                value={date}
-                onChange={(e) => e.target.value && goTo(e.target.value)}
+                defaultValue={current}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  if (isIsoDate(v) && v >= APOD_EPOCH && v <= latest && v !== current) goTo(v);
+                }}
               />
             </label>
             <button type="button" className="btn-ghost" disabled={!next} onClick={() => next && goTo(next)}>
               Next day →
             </button>
           </div>
-          <DayScrubber date={date} latest={latest} onChange={goTo} />
+          <DayScrubber date={current} latest={latest} onChange={goTo} />
           <p className="catalog text-center">
             {plateNumber(latest).toLocaleString("en-US")} plates since {formatLong(APOD_EPOCH)} · ← → keys to browse
           </p>

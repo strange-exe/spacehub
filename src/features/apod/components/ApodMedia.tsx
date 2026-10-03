@@ -10,8 +10,9 @@ interface ApodMediaProps {
 
 export function ApodMedia({ apod, onOpen }: ApodMediaProps) {
   const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  if (apod.media_type === "image" && apod.url) {
+  if (apod.media_type === "image" && apod.url && !failed) {
     return (
       <button type="button" onClick={onOpen} className="group relative block w-full cursor-zoom-in bg-ink-2" aria-label={`View “${apod.title}” larger`}>
         <img
@@ -21,6 +22,7 @@ export function ApodMedia({ apod, onOpen }: ApodMediaProps) {
           alt={apod.alt ?? apod.title}
           decoding="async"
           onLoad={() => setLoaded(true)}
+          onError={() => setFailed(true)} // falls through to the outbound-link fallback below
           className={cn(
             "mx-auto max-h-[78dvh] w-full object-contain transition-[opacity,filter] duration-700",
             loaded ? "opacity-100 blur-0" : "min-h-[50dvh] opacity-0 blur-md",
@@ -55,10 +57,10 @@ export function ApodMedia({ apod, onOpen }: ApodMediaProps) {
     return <video src={apod.url} poster={apod.thumbnail_url} controls className="w-full bg-ink-2" />;
   }
   return (
-    <a href={apod.url ?? apodPageUrl(apod.date)} target="_blank" rel="noreferrer" className="group relative block aspect-video w-full overflow-hidden bg-ink-2">
+    <a href={failed ? apodPageUrl(apod.date) : (apod.url ?? apodPageUrl(apod.date))} target="_blank" rel="noreferrer" className="group relative block aspect-video w-full overflow-hidden bg-ink-2">
       {apod.thumbnail_url && <img src={apod.thumbnail_url} alt="" className="size-full object-cover opacity-60 transition-opacity group-hover:opacity-80" />}
       <span className="absolute inset-0 grid place-items-center">
-        <span className="btn-solid">Open today’s interactive plate ↗</span>
+        <span className="btn-solid">{failed ? "Image unavailable · view on NASA ↗" : "Open this interactive plate ↗"}</span>
       </span>
     </a>
   );

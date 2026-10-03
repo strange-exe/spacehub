@@ -1,5 +1,5 @@
 import { ApiError, getJSON } from "@/lib/http";
-import type { IsoDate } from "@/lib/dates";
+import { addDays, type IsoDate } from "@/lib/dates";
 import { toPlainText } from "@/lib/text";
 import type { Apod } from "../../types";
 
@@ -77,24 +77,36 @@ export function mapScienceArticle(raw: RawArticle): Apod {
 
 const MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
 
+const FULL_FIELDS = { _embed: "wp:featuredmedia", _fields: "date,slug,title,content,_links,_embedded" };
+const SEARCH_PAGE = 100;
+
 /**
- * Lookup by title search + slug prefix. The WordPress date filter (after/before) silently
- * misses some migrated posts (e.g. 2020-12-22), while every APOD title follows
- * "APOD: 2020 December 22 – …" and every slug starts with "apod-2020-december-22-".
- * Measured on 16 random days: title search 15/16 (the miss was a real gap day), date filter 13/16.
+ * Every APOD slug starts with "apod-2020-december-22-", which identifies the day exactly.
+ *
+ * 1. Date-range query with the full payload: one request, finds most days, but the
+ *    WordPress date filter silently misses some migrated posts (e.g. 2020-12-22).
+ * 2. Fallback: title search returning slugs only (cheap even at 100 results; the right post
+ *    can rank 10th+ for day "1" because "APOD: 2024 May 1" also matches May 10–19), then
+ *    fetch the matching post by id.
+ *
+ * A 404 ("not published") is only claimed when the search was exhaustive.
  */
 export async function fetchFromScienceNasa(date: IsoDate, signal?: AbortSignal): Promise<Apod> {
   const [y = "", m = "", d = ""] = date.split("-");
   const month = MONTHS[Number(m) - 1] ?? "";
-  const params = new URLSearchParams({
-    search: `APOD: ${y} ${month} ${Number(d)}`,
-    _embed: "wp:featuredmedia",
-    _fields: "date,slug,title,content,_links,_embedded",
-    per_page: "10",
-  });
   const prefix = `apod-${y}-${month}-${Number(d)}-`;
-  const list = await getJSON<RawArticle[]>(`${BASE}?${params}`, signal);
-  const article = list.find((a) => a.slug.startsWith(prefix));
-  if (!article) throw new ApiError(404, `No plate was published on ${date}.`);
-  return mapScienceArticle(article);
+
+  const byDate = new URLSearchParams({ ...FULL_FIELDS, after: `${addDays(date, -1)}T23:59:59`, before: `${addDays(date, 1)}T00:00:00`, per_page: "10" });
+  const dated = await getJSON<RawArticle[]>(`${BASE}?${byDate}`, signal);
+  const direct = dated.find((a) => a.slug.startsWith(prefix));
+  if (direct) return mapScienceArticle(direct);
+
+  const search = new URLSearchParams({ search: `APOD: ${y} ${month} ${Number(d)}`, _fields: "id,slug", per_page: String(SEARCH_PAGE) });
+  const hits = await getJSON<Array<{ id: number; slug: string }>>(`${BASE}?${search}`, signal);
+  const hit = hits.find((a) => a.slug.startsWith(prefix));
+  if (!hit) {
+    if (hits.length < SEARCH_PAGE) throw new ApiError(404, `No plate was published on ${date}.`);
+    throw new ApiError(502, `Couldn't locate the plate for ${date} on science.nasa.gov.`);
+  }
+  return mapScienceArticle(await getJSON<RawArticle>(`${BASE}/${hit.id}?${new URLSearchParams(FULL_FIELDS)}`, signal));
 }

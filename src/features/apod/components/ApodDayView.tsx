@@ -24,11 +24,16 @@ export function ApodDayView({ date }: { date: IsoDate }) {
 }
 
 function MissingPlate({ date, error, retry }: { date: IsoDate; error: unknown; retry: () => void }) {
-  const notPublished = error instanceof ApiError && error.status === 404;
-  const { title, hint } = notPublished
-    ? { title: "No plate on file for this day.", hint: "APOD skipped a few days, mostly in its first weeks in 1995. Try a neighbouring day." }
-    : describeError(error);
   const latest = latestApodDate();
+  const notPublished = error instanceof ApiError && error.status === 404;
+  // Today's post usually appears a few minutes after midnight US Eastern; that's "not yet", not a gap.
+  const notYet = notPublished && date === latest;
+  const { title, hint } = notYet
+    ? { title: "Today’s plate is still developing.", hint: "NASA publishes shortly after midnight US Eastern time. Try again in a few minutes, or see yesterday’s plate." }
+    : notPublished
+      ? { title: "No plate on file for this day.", hint: "APOD skipped a few days, mostly in its first weeks in 1995. Try a neighbouring day." }
+      : describeError(error);
+  const canRetry = !notPublished || notYet;
 
   return (
     <section role="alert" className="mx-auto max-w-3xl px-6 pb-24 pt-36">
@@ -51,7 +56,7 @@ function MissingPlate({ date, error, retry }: { date: IsoDate; error: unknown; r
         <Link className="btn-ghost" to={dayRoute(randomApodDate(latest))}>
           Random plate
         </Link>
-        {!notPublished && (
+        {canRetry && (
           <button type="button" className="btn-solid" onClick={retry}>
             Try again
           </button>
