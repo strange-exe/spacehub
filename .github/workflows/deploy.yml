@@ -3,6 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -11,8 +12,9 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: pages-${{ github.event_name }}
+  # Never cancel a Pages deploy mid-flight (matches GitHub's Pages template).
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -31,11 +33,14 @@ jobs:
           # Optional: only used by the fallback APOD source. Add it under
           # Settings → Secrets and variables → Actions. Falls back to DEMO_KEY.
           VITE_NASA_API_KEY: ${{ secrets.NASA_API_KEY }}
-      - uses: actions/upload-pages-artifact@v3
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
+    # PRs only lint, test and build; deploys happen from main.
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
