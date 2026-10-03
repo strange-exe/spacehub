@@ -31,6 +31,15 @@ const between = (text: string, start: RegExp, end: RegExp): string | undefined =
   return to < 0 ? undefined : rest.slice(0, to).trim() || undefined;
 };
 
+/** assets.science.nasa.gov/dynamicimage resizes on the fly via ?w= (it does not convert formats). */
+export function resized(url: string, width: number): string {
+  if (!url.includes("/dynamicimage/")) return url;
+  const u = new URL(url);
+  u.searchParams.set("w", String(width));
+  u.searchParams.set("fit", "clip");
+  return u.toString();
+}
+
 export function mapScienceArticle(raw: RawArticle): Apod {
   const media = raw._embedded?.["wp:featuredmedia"]?.[0];
   const html = raw.content.rendered;
@@ -45,18 +54,21 @@ export function mapScienceArticle(raw: RawArticle): Apod {
   const credit = between(text, /Credit:\s*(?:(?:Image|Video|Illustration)[^:]*Credit[^:]*:\s*)?/i, /Authors? & editors|A service of/i)
     ?.replace(/\s+,/g, ",")
     .replace(/\s+–\s+/g, " – ");
-  // The "large" size is a bounded (w=1600,h=800) re-render that upscales small originals and
-  // shrinks portraits, so the original source_url is used for display too.
+  // Originals can be huge (2026-10-02 is a 37.7 MB PNG), so display uses width-bounded CDN
+  // renditions; WordPress's own "large" size also caps height, which crushes portraits.
   const full = media?.source_url;
+  const image = full && !iframe ? full : undefined;
 
   return {
     date: raw.date.slice(0, 10),
     title: toPlainText(raw.title.rendered).replace(/^APOD:\s*\d{4}\s+\w+\s+\d{1,2}\s*[–-]\s*/, ""),
     explanation,
     media_type: iframe ? "video" : full ? "image" : "other",
-    url: iframe ?? full,
-    hdurl: iframe ? undefined : full,
-    thumbnail_url: iframe ? full : undefined,
+    url: iframe ?? (image && resized(image, 1400)),
+    srcset: image && `${resized(image, 800)} 800w, ${resized(image, 1400)} 1400w`,
+    viewerUrl: image && resized(image, 2560),
+    hdurl: image,
+    thumbnail_url: iframe && full ? resized(full, 800) : undefined,
     credit,
     alt: media?.alt_text || undefined,
     source: "science.nasa.gov",

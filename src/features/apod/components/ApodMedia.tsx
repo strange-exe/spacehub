@@ -16,6 +16,8 @@ export function ApodMedia({ apod, onOpen }: ApodMediaProps) {
       <button type="button" onClick={onOpen} className="group relative block w-full cursor-zoom-in bg-ink-2" aria-label={`View “${apod.title}” larger`}>
         <img
           src={apod.url}
+          srcSet={apod.srcset}
+          sizes="(min-width: 1024px) 66vw, 100vw"
           alt={apod.alt ?? apod.title}
           decoding="async"
           onLoad={() => setLoaded(true)}

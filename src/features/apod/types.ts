@@ -7,7 +7,12 @@ export interface Apod {
   explanation: string;
   media_type: "image" | "video" | "other";
   url?: string;
+  /** Original, untouched file (may be tens of MB). */
   hdurl?: string;
+  /** Responsive renditions for the plate <img>. */
+  srcset?: string;
+  /** Large-but-sane rendition for the lightbox. */
+  viewerUrl?: string;
   thumbnail_url?: string;
   /** Official API: only present for non-public-domain images. */
   copyright?: string;

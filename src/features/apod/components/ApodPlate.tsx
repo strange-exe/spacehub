@@ -64,7 +64,17 @@ export function ApodPlate({ date }: { date: IsoDate }) {
     credit,
   };
   const viewerItems: LightboxItem[] = [
-    { id: favorite.id, title: apod.title, date: formatLong(apod.date), src: apod.url ?? "", fullSrc: apod.hdurl, description: explanation, credit, favorite },
+    {
+      id: favorite.id,
+      title: apod.title,
+      date: formatLong(apod.date),
+      src: apod.url ?? "",
+      fullSrc: apod.viewerUrl ?? apod.hdurl,
+      originalHref: apod.hdurl,
+      description: explanation,
+      credit,
+      favorite,
+    },
   ];
 
   return (

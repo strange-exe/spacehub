@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isPlaceholderApod } from "@/features/apod/api/apodApi";
-import { mapScienceArticle, type RawArticle } from "@/features/apod/api/sources/scienceNasa";
+import { mapScienceArticle, resized, type RawArticle } from "@/features/apod/api/sources/scienceNasa";
 
 // Trimmed from a real science.nasa.gov response (2026-10-03), structure preserved.
 const imageDay: RawArticle = {
@@ -44,6 +44,21 @@ describe("science.nasa.gov adapter", () => {
       content: { rendered: '<iframe src="https://www.youtube.com/embed/UgxWkOXcdZU?feature=oembed"></iframe><p>Explanation: Saturn.</p><p>Credit: Video Credit: NASA</p><p>Authors &amp; editors: x</p>' },
     });
     expect(video).toMatchObject({ media_type: "video", url: "https://www.youtube.com/embed/UgxWkOXcdZU?feature=oembed", thumbnail_url: "https://assets.science.nasa.gov/a/Sol1943.jpg", credit: "NASA" });
+  });
+});
+
+describe("CDN renditions", () => {
+  it("bounds width on the dynamicimage CDN and leaves other hosts alone", () => {
+    expect(resized("https://assets.science.nasa.gov/dynamicimage/assets/x/big.png", 1400)).toBe(
+      "https://assets.science.nasa.gov/dynamicimage/assets/x/big.png?w=1400&fit=clip",
+    );
+    expect(resized("https://apod.nasa.gov/apod/image/x.jpg", 1400)).toBe("https://apod.nasa.gov/apod/image/x.jpg");
+  });
+  it("keeps the untouched original as hdurl", () => {
+    const big = "https://assets.science.nasa.gov/dynamicimage/assets/x/big.png";
+    const apod = mapScienceArticle({ ...imageDay, _embedded: { "wp:featuredmedia": [{ source_url: big }] } });
+    expect(apod).toMatchObject({ hdurl: big, url: `${big}?w=1400&fit=clip`, viewerUrl: `${big}?w=2560&fit=clip` });
+    expect(apod.srcset).toContain("800w");
   });
 });
 

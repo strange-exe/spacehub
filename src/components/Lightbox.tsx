@@ -13,6 +13,8 @@ export interface LightboxItem {
   /** Larger rendition, either known up front or resolved lazily (cached by react-query). */
   fullSrc?: string;
   resolveFullSrc?: (signal: AbortSignal) => Promise<string | undefined>;
+  /** Target of the "Full resolution" link when it differs from what is displayed. */
+  originalHref?: string;
   description: string;
   credit?: string;
   favorite: Omit<FavoriteItem, "savedAt">;
@@ -169,7 +171,7 @@ function LightboxContent({ item, position, canStep, onStep, onClose }: ContentPr
         <p className="whitespace-pre-line text-[0.95rem] leading-relaxed text-bone/80">{item.description}</p>
         <div className="mt-auto flex flex-wrap gap-2 pt-2">
           <FavoriteButton item={item.favorite} />
-          <a className="btn-ghost" href={fullSrc ?? item.src} target="_blank" rel="noreferrer">
+          <a className="btn-ghost" href={item.originalHref ?? fullSrc ?? item.src} target="_blank" rel="noreferrer">
             Full resolution ↗
           </a>
         </div>
