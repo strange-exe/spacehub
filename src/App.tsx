@@ -44,7 +44,7 @@ export function App() {
       persistOptions={{
         persister,
         maxAge: WEEK,
-        buster: "v3", // bump whenever a persisted data shape (e.g. Apod) changes
+        buster: "v4", // bump whenever a persisted data shape (e.g. Apod) changes
         // Only APOD days and asset manifests are worth persisting; search pages would bloat storage.
         dehydrateOptions: {
           shouldDehydrateQuery: (q) =>

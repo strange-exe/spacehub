@@ -10,7 +10,9 @@ import { fetchFromScienceNasa } from "./sources/scienceNasa";
  * can't catch that, so every source's output is validated semantically.
  */
 export function isPlaceholderApod(apod: Apod): boolean {
-  return apod.title.trim() === "NASA Science" || /nasa-logo/i.test(apod.url ?? "") || !apod.explanation.trim();
+  // Only the broken-API signature counts. A real plate whose explanation we failed to scrape
+  // is still worth showing (the UI links to NASA for the text), not a reason for an error page.
+  return apod.title.trim() === "NASA Science" || /nasa-logo/i.test(apod.url ?? "");
 }
 
 const SOURCES = [fetchFromScienceNasa, fetchFromOfficialApi] as const;

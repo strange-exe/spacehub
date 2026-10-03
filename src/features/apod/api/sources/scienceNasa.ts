@@ -47,13 +47,23 @@ export function mapScienceArticle(raw: RawArticle): Apod {
   const iframe = html.match(/<iframe[^>]+src="([^"]+)"/i)?.[1];
 
   // The article body holds the full text; the media caption is only an excerpt ending in "[…]".
+  // Page layouts vary by era ("Tomorrow's picture:" vs "Tomorrow's Image", "Credit:" vs
+  // "Credit Video Credit & Copyright:"), so the explanation ends at the EARLIEST of several
+  // markers; the "Date July 10, 2018" line follows it in every layout seen so far.
   const explanation =
-    between(text, /Explanation:\s*/i, /Tomorrow.s picture/i) ??
-    between(text, /Explanation:\s*/i, /Credit:/i) ??
+    between(text, /Explanation:\s*/i, /Tomorrow.s (?:picture|image)|\bDate [A-Z][a-z]+ \d{1,2}, \d{4}|\bCredit(?::|\s+(?:Image|Video|Illustration)\b)/) ??
     toPlainText(media?.caption?.rendered).replace(/^Explanation:\s*/i, "");
-  const credit = between(text, /Credit:\s*(?:(?:Image|Video|Illustration)[^:]*Credit[^:]*:\s*)?/i, /Authors? & editors|A service of/i)
-    ?.replace(/\s+,/g, ",")
-    .replace(/\s+–\s+/g, " – ");
+  const title = toPlainText(raw.title.rendered).replace(/^APOD:\s*\d{4}\s+\w+\s+\d{1,2}\s*[–-]\s*/, "");
+  const credit = between(text, /\bCredit:?\s*(?:(?:Image|Video|Illustration)[^:]*Credit[^:]*:\s*)?/i, /Authors? & editors|A service of/i)
+    // 1990s–2000s templates repeat the label and/or print the title first:
+    // "Credit Credit: X" and "Credit The Trail of the Intruder Credit: X".
+    ?.replace(/^(?:Credit:\s*)+/i, "")
+    .replace(title ? new RegExp(`^${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s+Credit:\\s*`) : /$^/, "")
+    .replace(/\s+,/g, ",")
+    .replace(/\s+–\s+/g, " – ")
+    .replace(/\(\s+/g, "(")
+    .replace(/\s+\)/g, ")")
+    .replace(/[;,\s]+$/, "");
   // Originals can be huge (2026-10-02 is a 37.7 MB PNG), so display uses width-bounded CDN
   // renditions; WordPress's own "large" size also caps height, which crushes portraits.
   const full = media?.source_url;
@@ -61,7 +71,7 @@ export function mapScienceArticle(raw: RawArticle): Apod {
 
   return {
     date: raw.date.slice(0, 10),
-    title: toPlainText(raw.title.rendered).replace(/^APOD:\s*\d{4}\s+\w+\s+\d{1,2}\s*[–-]\s*/, ""),
+    title,
     explanation,
     media_type: iframe ? "video" : full ? "image" : "other",
     url: iframe ?? (image && resized(image, 1400)),

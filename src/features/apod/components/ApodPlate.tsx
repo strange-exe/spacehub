@@ -134,7 +134,16 @@ export function ApodPlate({ date }: { date: IsoDate }) {
             <h1 className="relative z-10 font-display text-5xl leading-[0.95] text-bone [text-shadow:0_2px_30px_rgba(7,8,11,0.9)] sm:text-6xl lg:-ml-28 lg:text-7xl">
               {apod.title}
             </h1>
-            <p className="mt-6 max-w-prose text-[1.02rem] leading-relaxed text-bone/80">{explanation}</p>
+            {explanation ? (
+              <p className="mt-6 max-w-prose text-[1.02rem] leading-relaxed text-bone/80">{explanation}</p>
+            ) : (
+              <p className="mt-6 max-w-prose text-dust">
+                The explanation for this plate couldn’t be loaded.{" "}
+                <a className="link" href={apodPageUrl(apod.date)} target="_blank" rel="noreferrer">
+                  Read it on NASA ↗
+                </a>
+              </p>
+            )}
             <div className="mt-8 flex flex-wrap gap-2">
               <FavoriteButton item={favorite} />
               {/* Always share the dated permalink, even from the "Today" page. */}

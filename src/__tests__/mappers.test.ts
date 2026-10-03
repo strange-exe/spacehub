@@ -7,6 +7,7 @@ describe("toPlainText", () => {
   it("strips markup and never executes it", () => {
     expect(toPlainText('Hi <a href="x">there</a><img src=x onerror=alert(1)>')).toBe("Hi there");
     expect(toPlainText("a<br>b")).toBe("a\nb");
+    expect(toPlainText("<p>Date July 10, 2018</p><p>Credit</p>")).toBe("Date July 10, 2018\nCredit");
     expect(toPlainText(undefined)).toBe("");
   });
 });

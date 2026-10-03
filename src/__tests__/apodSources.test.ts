@@ -47,6 +47,36 @@ describe("science.nasa.gov adapter", () => {
   });
 });
 
+describe("older page layouts", () => {
+  // Structure of the real 2018-07-10 page, which previously produced an empty explanation.
+  it('handles "Tomorrow\'s Image" and "Credit Video Credit & Copyright:" without colons', () => {
+    const apod = mapScienceArticle({
+      ...imageDay,
+      content: {
+        rendered:
+          '<iframe src="https://www.youtube.com/embed/8i8-IuYoz24?feature=oembed"></iframe>' +
+          "<p>Explanation: It&#8217;s northern noctilucent cloud season.</p><p>Date July 10, 2018</p>" +
+          "<p>Credit Video Credit &amp; Copyright: Jean-Luc Dauvergne ( Ciel et Espace );</p>" +
+          "<p>Authors &amp; editors: Robert Nemiroff</p><p>Tomorrow&#039;s Image APOD: 2018 July 11</p>",
+      },
+      _embedded: { "wp:featuredmedia": [{ source_url: "https://x/a.jpg", caption: { rendered: "" } }] },
+    });
+    expect(apod.explanation).toBe("It’s northern noctilucent cloud season.");
+    expect(apod.credit).toBe("Jean-Luc Dauvergne (Ciel et Espace)");
+    expect(apod.media_type).toBe("video");
+  });
+  it("strips repeated labels and a leading title from 1990s–2000s credit lines", () => {
+    const old = (credit: string) =>
+      mapScienceArticle({
+        ...imageDay,
+        title: { rendered: "APOD: 1997 February 24 &#8211; The Trail of the Intruder" },
+        content: { rendered: `<p>Explanation: x.</p><p>${credit}</p><p>Authors &amp; editors: y</p>` },
+      }).credit;
+    expect(old("Credit The Trail of the Intruder Credit: J.Higdon (NRAO), NASA")).toBe("J.Higdon (NRAO), NASA");
+    expect(old("Credit Credit: Hubble Heritage Team")).toBe("Hubble Heritage Team");
+  });
+});
+
 describe("CDN renditions", () => {
   it("bounds width on the dynamicimage CDN and leaves other hosts alone", () => {
     expect(resized("https://assets.science.nasa.gov/dynamicimage/assets/x/big.png", 1400)).toBe(
