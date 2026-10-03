@@ -4,7 +4,7 @@ SpaceHub presents NASA's **Astronomy Picture of the Day** as a numbered photogra
 (Plate № 1 = 16 June 1995) that you can walk day by day, alongside a searchable view of the
 **NASA Image and Video Library**.
 
-### [Live demo](https://abhinesh.me/spacehub/)
+### [Live demo](https://abhinesh.codes/spacehub/)
 
 ## Features
 
