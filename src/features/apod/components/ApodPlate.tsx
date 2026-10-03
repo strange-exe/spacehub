@@ -12,6 +12,8 @@ import { addDays, formatLong, isIsoDate, type IsoDate } from "@/lib/dates";
 import { toPlainText } from "@/lib/text";
 import { apodQuery, useApod } from "../hooks/useApod";
 import { useLatestApodDate } from "../hooks/useLatestApodDate";
+import { plateImageQuery, plateImageSource } from "../hooks/usePlateImage";
+import { canPrefetchMedia } from "@/lib/preloadImage";
 import { APOD_EPOCH, plateNumber, randomApodDate } from "../lib/apodDates";
 import { apodPageUrl } from "../lib/media";
 import { ApodMedia } from "./ApodMedia";
@@ -42,10 +44,18 @@ export function ApodPlate({ date }: { date: IsoDate }) {
   const prev = current > APOD_EPOCH ? addDays(current, -1) : null;
   const next = current < latest ? addDays(current, 1) : null;
 
-  // Warm the cache for the neighbouring days so prev/next feel instant.
+  // Warm the cache for the neighbouring days so prev/next feel instant: their data always,
+  // and their images too unless the user is on Data Saver or a 2G-class connection.
   useEffect(() => {
     for (const d of [addDays(date, -1), addDays(date, 1)]) {
-      if (d >= APOD_EPOCH && d <= latest) void queryClient.prefetchQuery(apodQuery(d));
+      if (d < APOD_EPOCH || d > latest) continue;
+      void queryClient
+        .ensureQueryData(apodQuery(d))
+        .then((neighbour) => {
+          const source = plateImageSource(neighbour);
+          if (source && canPrefetchMedia()) return queryClient.prefetchQuery(plateImageQuery(source));
+        })
+        .catch(() => {}); // a failed prefetch is not an error until the user navigates there
     }
   }, [date, latest, queryClient]);
 

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/cn";
+import type { ImageSource } from "@/lib/preloadImage";
+import { PLATE_SIZES, plateImageSource, usePlateImageReady } from "../hooks/usePlateImage";
 import { apodPageUrl, toEmbedUrl } from "../lib/media";
 import type { Apod } from "../types";
 
@@ -8,31 +10,49 @@ interface ApodMediaProps {
   onOpen: () => void;
 }
 
-export function ApodMedia({ apod, onOpen }: ApodMediaProps) {
-  const [loaded, setLoaded] = useState(false);
-  const [failed, setFailed] = useState(false);
+interface PlateImageProps {
+  apod: Apod;
+  source: ImageSource;
+  onOpen: () => void;
+  onError: () => void;
+}
 
-  if (apod.media_type === "image" && apod.url && !failed) {
-    return (
-      <button type="button" onClick={onOpen} className="group relative block w-full cursor-zoom-in bg-ink-2" aria-label={`View “${apod.title}” larger`}>
-        <img
-          src={apod.url}
-          srcSet={apod.srcset}
-          sizes="(min-width: 1024px) 66vw, 100vw"
-          alt={apod.alt ?? apod.title}
-          decoding="async"
-          onLoad={() => setLoaded(true)}
-          onError={() => setFailed(true)} // falls through to the outbound-link fallback below
-          className={cn(
-            "mx-auto max-h-[78dvh] w-full object-contain transition-[opacity,filter] duration-700",
-            loaded ? "opacity-100 blur-0" : "min-h-[50dvh] opacity-0 blur-md",
-          )}
-        />
-        <span className="catalog absolute bottom-3 right-3 rounded-full bg-ink/70 px-3 py-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
-          Enlarge ⤢
-        </span>
-      </button>
-    );
+/** Suspends until the image is decoded (bounded), so it usually mounts already painted. */
+function PlateImage({ apod, source, onOpen, onError }: PlateImageProps) {
+  usePlateImageReady(source);
+  const [loaded, setLoaded] = useState(false);
+
+  return (
+    <button type="button" onClick={onOpen} className="group relative block w-full cursor-zoom-in bg-ink-2" aria-label={`View “${apod.title}” larger`}>
+      <img
+        src={source.src}
+        srcSet={source.srcSet}
+        sizes={PLATE_SIZES}
+        alt={apod.alt ?? apod.title}
+        decoding="async"
+        onLoad={() => setLoaded(true)}
+        onError={onError}
+        className={cn(
+          // Short fade: when preloading worked the image is already decoded; the long blur-in
+          // only matters on the slow path (preload hit its time cap).
+          "mx-auto max-h-[78dvh] w-full object-contain transition-[opacity,filter] duration-300",
+          loaded ? "opacity-100 blur-0" : "min-h-[50dvh] opacity-0 blur-md",
+        )}
+      />
+      <span className="catalog absolute bottom-3 right-3 rounded-full bg-ink/70 px-3 py-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+        Enlarge ⤢
+      </span>
+    </button>
+  );
+}
+
+export function ApodMedia({ apod, onOpen }: ApodMediaProps) {
+  const [failed, setFailed] = useState(false);
+  const source = plateImageSource(apod);
+
+  if (source && !failed) {
+    // onError falls through to the outbound-link fallback below.
+    return <PlateImage apod={apod} source={source} onOpen={onOpen} onError={() => setFailed(true)} />;
   }
 
   const embed = apod.media_type === "video" ? toEmbedUrl(apod.url) : null;
