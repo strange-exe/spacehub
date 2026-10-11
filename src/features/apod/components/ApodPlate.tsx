@@ -122,7 +122,7 @@ export function ApodPlate({ date }: { date: IsoDate }) {
             initial={{ clipPath: "inset(0 0 100% 0)", opacity: 0.4 }}
             animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            className="relative min-w-0 lg:col-span-8"
+            className="relative min-w-0 lg:col-span-7"
           >
             <RegMarks />
             <ApodMedia apod={apod} onOpen={() => setViewerOpen(true)} />
@@ -138,10 +138,11 @@ export function ApodPlate({ date }: { date: IsoDate }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.35 }}
-            className="flex min-w-0 flex-col lg:col-span-4"
+            className="flex min-w-0 flex-col lg:col-span-5"
           >
-            {/* Title deliberately overhangs the plate on large screens. */}
-            <h1 className="relative z-10 font-display text-5xl leading-[0.95] text-bone [text-shadow:0_2px_30px_rgba(7,8,11,0.9)] sm:text-6xl lg:-ml-28 lg:text-7xl">
+            {/* Sits beside the plate, never over it: on light images an overhanging title had no
+                reliable contrast. text-balance keeps long titles to even, short lines. */}
+            <h1 className="font-display text-5xl leading-[0.95] text-balance text-bone sm:text-6xl lg:text-[clamp(3.25rem,4.4vw,4.5rem)]">
               {apod.title}
             </h1>
             {explanation ? (

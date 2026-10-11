@@ -39,13 +39,15 @@ const SECTIONS: Array<{ id: string; label: string; body: ReactNode }> = [
     body: (
       <ul className="grid gap-3">
         <li>
-          <a className="link" href="https://github.com/nasa/apod-api">APOD API</a> on api.nasa.gov: the daily plates.
+          <a className="link" href="https://science.nasa.gov/apod/apod-index/">APOD on science.nasa.gov</a>, where
+          apod.nasa.gov now redirects: the daily plates. NASA’s{" "}
+          <a className="link" href="https://github.com/nasa/apod-api">APOD API</a> is kept as a fallback.
         </li>
         <li>
           <a className="link" href="https://images.nasa.gov/docs/images.nasa.gov_api_docs.pdf">NASA Image and Video Library API</a>: the
           searchable library.
         </li>
-        <li>Most NASA imagery is public domain; APOD entries marked © belong to their credited photographers.</li>
+        <li>Much NASA imagery is public domain, but many APOD images belong to the photographers credited under each plate.</li>
       </ul>
     ),
   },
@@ -80,17 +82,17 @@ export default function About() {
       <div className="mt-20 grid gap-16 md:grid-cols-[14rem_1fr]">
         <nav aria-label="On this page" className="hidden md:block">
           <ul className="sticky top-28 grid gap-2">
-            {SECTIONS.map((s, i) => (
+            {SECTIONS.map((s) => (
               <li key={s.id}>
                 <a href={`#${s.id}`} onClick={(e) => { e.preventDefault(); document.getElementById(s.id)?.scrollIntoView(); }} className="catalog hover:text-bone">
-                  {String(i + 1).padStart(2, "0")} {s.label}
+                  {s.label}
                 </a>
               </li>
             ))}
           </ul>
         </nav>
         <div className="grid gap-16">
-          {SECTIONS.map((s, i) => (
+          {SECTIONS.map((s) => (
             <motion.article
               key={s.id}
               id={s.id}
@@ -99,8 +101,7 @@ export default function About() {
               viewport={{ once: true, margin: "-80px" }}
               className="scroll-mt-28 border-t border-bone/10 pt-6"
             >
-              <p className="catalog text-signal">{String(i + 1).padStart(2, "0")}</p>
-              <h2 className="mt-2 font-display text-4xl">{s.label}</h2>
+              <h2 className="font-display text-4xl">{s.label}</h2>
               <div className="mt-4 max-w-prose text-lg leading-relaxed text-bone/80">{s.body}</div>
             </motion.article>
           ))}

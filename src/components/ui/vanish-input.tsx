@@ -33,7 +33,7 @@ export function VanishInput({ placeholders, defaultValue = "", label, onSubmit }
   };
 
   return (
-    <form role="search" onSubmit={submit} className="relative mx-auto flex h-14 w-full max-w-2xl items-center overflow-hidden rounded-full border border-bone/15 bg-ink-2 pl-6 pr-2 focus-within:border-signal/70">
+    <form role="search" onSubmit={submit} className="relative flex h-14 w-full max-w-2xl items-center overflow-hidden rounded-full border border-bone/15 bg-ink-2 pl-6 pr-2 focus-within:border-signal/70">
       <label htmlFor="library-search" className="sr-only">
         {label}
       </label>
@@ -79,7 +79,7 @@ export function VanishInput({ placeholders, defaultValue = "", label, onSubmit }
           ))}
         </div>
       )}
-      <button type="submit" disabled={!value.trim()} className="btn-solid z-10 h-10 px-4" aria-label="Search">
+      <button type="submit" disabled={!value.trim()} className="btn-solid z-10 h-10 shrink-0 whitespace-nowrap px-4" aria-label="Search">
         Search →
       </button>
     </form>

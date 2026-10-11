@@ -8,7 +8,7 @@
   --color-ink-3: #171a22;
   --color-bone: #ece6d9;
   --color-dust: #9a958a; /* 6.9:1 on ink, safe for body copy */
-  --color-signal: #ff7a3d;
+  --color-signal: #eb895c; /* same hue as the original #ff7a3d, saturation 100% -> 78%; 7.9:1 on ink */
 
   --font-display: "Instrument Serif", ui-serif, Georgia, serif;
   --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;

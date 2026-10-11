@@ -25,7 +25,7 @@ export default function Gallery() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-20 pt-32 sm:px-6">
-      <motion.header initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-10 text-center">
+      <motion.header initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-10">
         <p className="catalog text-signal">NASA Image and Video Library</p>
         <h1 className="mt-3 font-display text-5xl leading-none sm:text-7xl">
           NASA’s archive, <em className="text-dust">one search away.</em>
@@ -34,7 +34,7 @@ export default function Gallery() {
 
       <VanishInput label="Search NASA's image library" placeholders={PLACEHOLDERS} onSubmit={search} />
 
-      <ul className="mx-auto mt-6 flex max-w-3xl flex-wrap justify-center gap-2" aria-label="Topics">
+      <ul className="mt-6 flex max-w-3xl flex-wrap gap-2" aria-label="Topics">
         {TOPICS.map((t) => {
           const active = t.toLowerCase() === query.toLowerCase();
           return (
