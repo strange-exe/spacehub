@@ -17,7 +17,7 @@ interface PlateImageProps {
   onError: () => void;
 }
 
-/** Suspends until the image is decoded (bounded), so it usually mounts already painted. */
+/** Suspends until the image has loaded (bounded), so it usually mounts already painted. */
 function PlateImage({ apod, source, onOpen, onError }: PlateImageProps) {
   usePlateImageReady(source);
   const [loaded, setLoaded] = useState(false);
@@ -25,6 +25,11 @@ function PlateImage({ apod, source, onOpen, onError }: PlateImageProps) {
   return (
     <button type="button" onClick={onOpen} className="group relative block w-full cursor-zoom-in bg-ink-2" aria-label={`View “${apod.title}” larger`}>
       <img
+        // Usually already loaded (prefetch / usePlateImageReady): show it in the first frame
+        // instead of fading in, so it counts as painted (LCP) immediately.
+        ref={(el) => {
+          if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+        }}
         src={source.src}
         srcSet={source.srcSet}
         sizes={PLATE_SIZES}
@@ -33,7 +38,7 @@ function PlateImage({ apod, source, onOpen, onError }: PlateImageProps) {
         onLoad={() => setLoaded(true)}
         onError={onError}
         className={cn(
-          // Short fade: when preloading worked the image is already decoded; the long blur-in
+          // Short fade: when preloading worked the image is already loaded; the long blur-in
           // only matters on the slow path (preload hit its time cap).
           "mx-auto max-h-[78dvh] w-full object-contain transition-[opacity,filter] duration-300",
           loaded ? "opacity-100 blur-0" : "min-h-[50dvh] opacity-0 blur-md",

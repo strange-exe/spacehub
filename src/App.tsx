@@ -6,6 +6,8 @@ import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client
 import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
 import { Layout } from "@/components/Layout";
 import { storageKey } from "@/lib/storage";
+import { apodQuery } from "@/features/apod/hooks/useApod";
+import { latestApodDate } from "@/features/apod/lib/apodDates";
 
 const Home = lazy(() => import("@/routes/Home"));
 const ApodDay = lazy(() => import("@/routes/ApodDay"));
@@ -36,6 +38,15 @@ function safeLocalStorage(): Storage | undefined {
 }
 
 const persister = createSyncStoragePersister({ storage: safeLocalStorage(), key: storageKey("query-cache") });
+
+// Render-as-you-fetch for the landing page: today's plate is the LCP element, and its API call
+// is the slowest step (~1 s). Start it now instead of after the lazy route chunk has loaded.
+// Skipped when the persisted cache (restored a moment later) already holds today's plate.
+if (/^#?\/?$/.test(window.location.hash)) {
+  const today = latestApodDate();
+  const cached = safeLocalStorage()?.getItem(storageKey("query-cache"))?.includes(`["apod","${today}"]`);
+  if (!cached) void queryClient.prefetchQuery(apodQuery(today));
+}
 
 export function App() {
   return (

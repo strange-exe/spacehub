@@ -5,8 +5,11 @@ export interface ImageSource {
 }
 
 /**
- * Download *and decode* an image off-DOM. Passing the same srcset/sizes as the real <img>
- * makes the browser pick the same candidate, so the later render is a cache hit.
+ * Download an image off-DOM. Passing the same srcset/sizes as the real <img> makes the browser
+ * pick the same candidate, so the later render is a cache hit.
+ * Resolves on load, deliberately NOT on decode(): Chromium treats decoding a detached image as
+ * low priority (measured: load at 128 ms, decode() resolving at 2,556 ms), while decoding during
+ * the real first paint takes milliseconds.
  * Always resolves (load, error or hard cap): a failed preload must never block rendering.
  */
 export function preloadImage({ src, srcSet, sizes }: ImageSource, capMs = 20_000): Promise<true> {
@@ -16,8 +19,7 @@ export function preloadImage({ src, srcSet, sizes }: ImageSource, capMs = 20_000
     const timer = window.setTimeout(done, capMs);
     img.onload = () => {
       window.clearTimeout(timer);
-      // decode() avoids a paint hitch when the <img> first appears; ignore decode failures.
-      img.decode().then(done, done);
+      done();
     };
     img.onerror = () => {
       window.clearTimeout(timer);
