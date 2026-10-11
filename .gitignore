@@ -4,3 +4,6 @@ dist
 .env.local
 .claude/
 *.tsbuildinfo
+e2e/shots/
+test-results/
+playwright-report/

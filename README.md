@@ -51,7 +51,18 @@ npm run dev        # http://localhost:5173
 npm test           # unit tests (dates, adapters, storage, sanitiser)
 npm run lint && npm run typecheck
 npm run build      # static output in dist/, works from any sub-path
+npm run test:design   # Playwright: axe (WCAG 2.2 AA), overflow, console errors, LCP, screenshots
 ```
+
+`test:design` builds the site and checks every key page at 1440 px and 390 px. Screenshots and a
+`report.json` land in `e2e/shots/<phase>/` (`SHOTS=before|after`); `STRICT=1` fails on any finding.
+It calls the live NASA APIs, so it is not part of CI. First run: `npx playwright install chromium`.
+
+### Production build
+
+The build ships no source maps, hash-only file names, no `console`/`debugger` calls, and a
+Content-Security-Policy `<meta>` tag (GitHub Pages cannot send headers). This hides the source
+*structure* only: everything in the bundle is public, so secrets never belong in client code.
 
 Optional: copy `.env.example` to `.env` and set `VITE_NASA_API_KEY` (free at
 [api.nasa.gov](https://api.nasa.gov)). It is only used by the fallback source and ends up in the
